@@ -3,6 +3,8 @@ from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException, status
 from app.models.appointment import Appointment
 from app.services.audit import write_audit_log
+from app.services.notifications import send_appointment_reminder
+
 
 def book_appointment(db: Session, patient_id, doctor_id, start_time, end_time, ip_address=None) -> Appointment:
 
@@ -24,7 +26,6 @@ def book_appointment(db: Session, patient_id, doctor_id, start_time, end_time, i
     db.add(appointment)
 
     try:
-        
         db.commit()
     except IntegrityError:
         db.rollback()
@@ -33,4 +34,7 @@ def book_appointment(db: Session, patient_id, doctor_id, start_time, end_time, i
     db.refresh(appointment)
     write_audit_log(db, actor_user_id=patient_id, action="appointment.create", resource_id=str(appointment.id), ip_address=ip_address)
     db.commit()
+
+    send_appointment_reminder.delay(str(appointment.id), "patient@example.com", str(start_time))
+
     return appointment
