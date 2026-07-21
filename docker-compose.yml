@@ -1,7 +1,6 @@
 version: "3.9"
-volumes:
-  pgdata:
-  services:
+
+services:
   api:
     build: .
     ports:
