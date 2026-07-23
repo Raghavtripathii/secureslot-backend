@@ -91,6 +91,11 @@ RBAC is enforced at the **data query level**, not just the endpoint —
 on the caller's role, so one patient's SQL query can never return another
 patient's data. Verified in `app/tests/test_rbac.py`.
 
+Doctor profiles are self-service — a registered doctor calls
+`POST /doctors/` to create their own listing, and any authenticated user
+can browse the roster via `GET /doctors/`, no manual database access
+required.
+
 **Security hardening, informed by hands-on offensive testing.** Every
 decision below traces back to a specific vulnerability I found and
 exploited while building
@@ -208,12 +213,12 @@ commands — is documented in [`DEPLOYMENT.md`](./DEPLOYMENT.md).
 
 ## What I'd build next
 
-- A `POST /doctors` endpoint — right now a doctor's row in the `doctors`
-  table has to be created manually via SQL, since profile creation was
-  out of scope for the core concurrency problem this project targets
 - Real email delivery (Resend/SES) instead of the current logged
   placeholder reminder
-- A frontend (Next.js + TypeScript) consuming this API directly
+- Frontend: in progress at
+  [secureslot-frontend](https://github.com/Raghavtripathii/secureslot-frontend) —
+  Next.js + TypeScript, consuming this API directly through server-side
+  proxy routes so the JWT never touches client-side JavaScript
 
 ## License
 
